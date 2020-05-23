@@ -1,2 +1,4 @@
-const msg: string = 'hello world'
-console.log(msg)
+'use strict';
+
+const message: string = 'hello world'
+console.log(message)
