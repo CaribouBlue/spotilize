@@ -4,8 +4,19 @@
   "description": "viz for spotify metrics",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jest",
+    "start": "node ./server/src",
+    "start:dev": "nodemon ./server/src"
   },
   "author": "Alec Draymore",
-  "license": "ISC"
+  "license": "ISC",
+  "devDependencies": {
+    "jest": "^26.0.1",
+    "nodemon": "^2.0.4"
+  },
+  "dependencies": {
+    "config": "^3.3.1",
+    "express": "^4.17.1",
+    "uuid": "^8.1.0"
+  }
 }
