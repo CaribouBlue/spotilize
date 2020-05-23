@@ -12,6 +12,6 @@ console.info(`Using config ${configFile}`)
 // run server
 import {port, app} from './server'
 
-app.listen(() => {
+app.listen(port, () => {
   console.info(`::: node server listening to port ${port} :::`)
 })
