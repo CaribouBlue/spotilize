@@ -1,3 +1,5 @@
 module.exports = {
-  placeholder: {}
+  server: {
+    port: process.env.PORT || 1337,
+  }
 }
