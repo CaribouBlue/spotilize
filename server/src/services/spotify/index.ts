@@ -45,21 +45,46 @@ const handleRequest = async (method: Method, url: string, config: AxiosRequestCo
   }
 }
 
-export const getGrant = async (code: string): Promise<Grant> => {
+const decorateGrant = (grant: Grant, refresh_token: string) => {
+  grant.expires_at = Date.now() + (grant.expires_in - 60) * 1000
+  grant.refresh_token = grant.refresh_token || refresh_token
+  return grant
+}
+
+export const getGrant = async (grantInput: string, isRefreshToken:boolean = false): Promise<Grant> => {
   const url = 'https://accounts.spotify.com/api/token'
+
+  let data
+  if (isRefreshToken) {
+    data = {
+      grant_type: 'refresh_token',
+      refresh_token: grantInput,
+    }
+  } else {
+    data = {
+      grant_type: 'authorization_code',
+      code: grantInput,
+      redirect_uri: config.get('spotify.redirectURI'),
+    }
+  }
+
   const resp = await handleRequest('post', url, {
     auth,
     headers: {
       'Content-Type': 'application/x-www-form-urlencoded',
     },
-    data: qs.stringify({
-      grant_type: 'authorization_code',
-      code,
-      redirect_uri: config.get('spotify.redirectURI'),
-    }),
+    data: qs.stringify(data),
   })
-  return {
-    ...resp.data,
-    expires_at: Date.now() + (resp.data.expires_in - 60) * 1000
+
+  const grant = decorateGrant(resp.data, grantInput)
+  return grant
+}
+
+export const grantIsValid = (grant: Grant): boolean => {
+  const {expires_at} = grant
+  if (expires_at <= Date.now()) {
+    return false
+  } else {
+    return true
   }
 }

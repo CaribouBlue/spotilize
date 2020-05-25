@@ -59,7 +59,7 @@ app.get('/auth/spotify', async (req, res) => {
   }
 })
 
-app.use((req, res, next) => {
+app.use(async (req, res, next) => {
   const spotifySess = req.session.spotify
   if (!spotifySess || !spotifySess.grant) {
     const state = uuid()
@@ -68,6 +68,10 @@ app.use((req, res, next) => {
     const spotifyAuthURL = spotify.getAuthorizeURL(state)
     res.redirect(spotifyAuthURL)
   } else {
+    if (!spotify.grantIsValid(spotifySess.grant)) {
+      const newGrant = await spotify.getGrant(spotifySess.grant.refresh_token, true)
+      req.session.spotify.grant = newGrant
+    }
     next()
   }
 })
