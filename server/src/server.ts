@@ -3,6 +3,7 @@
 import config  from 'config'
 import express from 'express'
 import morgan from 'morgan'
+import bodyParser from 'body-parser'
 import { graphqlExpress, graphiqlExpress } from 'apollo-server-express'
 import { makeExecutableSchema } from 'graphql-tools'
 
