@@ -4,6 +4,8 @@ import config  from 'config'
 import express from 'express'
 import morgan from 'morgan'
 import bodyParser from 'body-parser'
+import session from 'express-session'
+import memorystore from 'memorystore'
 import { graphqlExpress, graphiqlExpress } from 'apollo-server-express'
 import { makeExecutableSchema } from 'graphql-tools'
 
@@ -19,8 +21,19 @@ app.use(morgan(morganFormat))
 app.use(bodyParser.urlencoded({ extended: false }))
 // parse application/json
 app.use(bodyParser.json())
-
-// GRAPHQL
+// set up session handeling
+const MemoryStore = memorystore(session)
+const sessionOptions: any = {
+  secret: config.get('server.session.secret'),
+  resave: false,
+  saveUninitialized: false,
+  cookie: { secure: config.get('server.session.cookie.secure') },
+  store: new MemoryStore({
+    checkPeriod: 86400000 // prune expired entries every 24h
+  })
+}
+app.use(session(sessionOptions))
+// graphql setup
 const Query = `
   type Query {
     _empty: String
@@ -30,11 +43,10 @@ const schema = makeExecutableSchema({
   typeDefs: [Query, helloGql.typeDef],
   resolvers: [helloGql.resolvers],
 });
+app.use('/graphql', graphqlExpress({ schema }))
+app.use('/graphiql', graphiqlExpress({ endpointURL: '/graphql' }))
 
 //ROUTES
-app.use('/graphql', graphqlExpress({ schema }));
-app.use('/graphiql', graphiqlExpress({ endpointURL: '/graphql' }));
-
 app.get('*', (req, res) => {
   res.send('<h1>hello world</h1>')
 })
