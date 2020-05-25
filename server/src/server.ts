@@ -8,7 +8,9 @@ import session from 'express-session'
 import memorystore from 'memorystore'
 import { graphqlExpress, graphiqlExpress } from 'apollo-server-express'
 import { makeExecutableSchema } from 'graphql-tools'
+import {v4 as uuid} from 'uuid'
 
+import * as spotify from '@services/spotify'
 import * as helloGql from './graphql/hello'
 
 const app = express()
@@ -20,6 +22,7 @@ app.use(morgan(morganFormat))
 
 // parse application/x-www-form-urlencoded
 app.use(bodyParser.urlencoded({ extended: false }))
+
 // parse application/json
 app.use(bodyParser.json())
 
@@ -35,6 +38,39 @@ const sessionOptions: any = {
   })
 }
 app.use(session(sessionOptions))
+
+// spotify auth handler
+app.get('/auth/spotify', async (req, res) => {
+  const spotifySess = req.session.spotify
+  const {code, state} = req.query
+  if (!spotifySess) {
+    res.redirect('/')
+  } else if (spotifySess.state !== state) {
+    res.send(400)
+  } else {
+    try {
+      const grant = await spotify.getGrant(code.toString())
+      req.session.spotify = {grant}
+      res.redirect(spotifySess.originalUrl)
+    } catch (error) {
+      console.error(error)
+      res.status(500).send({error})
+    }
+  }
+})
+
+app.use((req, res, next) => {
+  const spotifySess = req.session.spotify
+  if (!spotifySess || !spotifySess.grant) {
+    const state = uuid()
+    const {originalUrl} = req
+    req.session.spotify = {state, originalUrl}
+    const spotifyAuthURL = spotify.getAuthorizeURL(state)
+    res.redirect(spotifyAuthURL)
+  } else {
+    next()
+  }
+})
 
 // graphql setup
 const Query = `

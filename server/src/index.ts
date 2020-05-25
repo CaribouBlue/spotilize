@@ -9,6 +9,9 @@ const instance: string | null = process.env['NODE_APP_INSTANCE'] || null;
 const configFile = deployment + (instance ? '-' + instance : '')
 console.info(`Using config ${configFile}`)
 
+// set up module aliases
+require('module-alias/register')
+
 // run server
 import {port, app} from './server'
 

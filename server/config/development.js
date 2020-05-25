@@ -5,6 +5,7 @@ module.exports = merge(
   defaultConfig,
   {
     server: {
+      port: 1337,
       session: {
         secret: 'killacats',
         cookie: {
