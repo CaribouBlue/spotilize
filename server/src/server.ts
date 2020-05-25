@@ -14,13 +14,15 @@ import * as helloGql from './graphql/hello'
 const app = express()
 const port: string | number = config.get('server.port')
 
-// MIDDLEWARE
+// request info logging
 const morganFormat: string = config.get('server.morganFormat')
 app.use(morgan(morganFormat))
+
 // parse application/x-www-form-urlencoded
 app.use(bodyParser.urlencoded({ extended: false }))
 // parse application/json
 app.use(bodyParser.json())
+
 // set up session handeling
 const MemoryStore = memorystore(session)
 const sessionOptions: any = {
@@ -33,6 +35,7 @@ const sessionOptions: any = {
   })
 }
 app.use(session(sessionOptions))
+
 // graphql setup
 const Query = `
   type Query {
@@ -46,7 +49,7 @@ const schema = makeExecutableSchema({
 app.use('/graphql', graphqlExpress({ schema }))
 app.use('/graphiql', graphiqlExpress({ endpointURL: '/graphql' }))
 
-//ROUTES
+// route fall through handler
 app.get('*', (req, res) => {
   res.send('<h1>hello world</h1>')
 })
