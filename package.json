@@ -14,7 +14,8 @@
   "_moduleAliases": {
     "@root": ".",
     "@services": "server/dist/services",
-    "@utils": "server/dist/utils"
+    "@utils": "server/dist/utils",
+    "@graphql": "server/dist/graphql"
   },
   "devDependencies": {
     "@types/config": "0.0.36",
@@ -28,7 +29,6 @@
     "typescript": "^3.9.3"
   },
   "dependencies": {
-    "apollo-server-express": "^1.4.0",
     "axios": "^0.19.2",
     "express": "^4.17.1",
     "express-graphql": "^0.9.0",

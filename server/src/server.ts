@@ -6,12 +6,14 @@ import morgan from 'morgan'
 import bodyParser from 'body-parser'
 import session from 'express-session'
 import memorystore from 'memorystore'
-import { graphqlExpress, graphiqlExpress } from 'apollo-server-express'
+import graphqlHTTP from 'express-graphql'
 import { makeExecutableSchema } from 'graphql-tools'
 import {v4 as uuid} from 'uuid'
 
 import * as spotify from '@services/spotify'
-import * as helloGql from './graphql/hello'
+
+import * as hello from '@graphql/hello'
+import * as user from '@graphql/user'
 
 const app = express()
 const port: string | number = config.get('server.port')
@@ -81,13 +83,19 @@ const Query = `
   type Query {
     _empty: String
   }
+
+  type Tuple {
+    key: String
+    value: String
+  }
 `
-const schema = makeExecutableSchema({
-  typeDefs: [Query, helloGql.typeDef],
-  resolvers: [helloGql.resolvers],
-});
-app.use('/graphql', graphqlExpress({ schema }))
-app.use('/graphiql', graphiqlExpress({ endpointURL: '/graphql' }))
+const typeDefs = [Query, hello.typeDef, user.typeDef]
+const resolvers = [hello.resolvers, user.resolvers]
+const schema = makeExecutableSchema({ typeDefs, resolvers });
+app.use('/graphql', graphqlHTTP({
+  schema: schema,
+  graphiql: true,
+}));
 
 // route fall through handler
 app.get('*', (req, res) => {

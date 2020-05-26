@@ -21,7 +21,7 @@ export const getAuthorizeURL = (state?: string): string => {
     response_type: 'code',
     redirect_uri: redirectURI,
     state: state,
-    scope: null,
+    scope: 'playlist-read-private',
     show_dialog: false,
   }
   const queryString = qs.stringify(params)

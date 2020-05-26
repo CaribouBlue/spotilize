@@ -6,3 +6,29 @@ export interface Grant {
   refresh_token: string,
   scope: string,
 }
+
+export interface Image {
+  height: number | null,
+  url: string,
+  width: number | null
+}
+
+export interface User {
+  display_name: string,
+  external_urls: {
+    spotify: string
+  },
+  followers: {
+    href: null,
+    total: number
+  },
+  href: string,
+  id: string,
+  images: Image[],
+  type: string,
+  uri: string,
+}
+
+export interface Playlist {
+
+}

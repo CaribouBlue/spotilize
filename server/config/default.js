@@ -15,5 +15,6 @@ module.exports = {
     clientID: process.env.SPOTIFY_CLIENT_ID,
     clientSecret: process.env.SPOTIFY_CLIENT_SECRET,
     redirectURI: 'http://localhost:1337/auth/spotify',
+    apiHost: 'https://api.spotify.com/v1',
   },
 }
