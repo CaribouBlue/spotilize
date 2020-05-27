@@ -18,30 +18,66 @@ export const typeDef = `
     type: String
     uri: String
   }
+
 `;
 
 export class User {
-  displayName: string
-  externalUrls: {
-    key: string,
-    value: string,
-  }[]
-  followers: number
-  href: string
-  id: string
-  images: string[]
-  type: string
-  uri: string
-  constructor(user: spotify.User) {
-    this.displayName = user.display_name
-    this.externalUrls = Object.entries(user.external_urls)
+  grant: spotify.Grant
+  userID: string
+  _userPromise: Promise<spotify.User>
+
+  constructor(grant: spotify.Grant, userID: string) {
+    this.grant = grant
+    this.userID = userID
+    this._userPromise = null
+  }
+
+  get userPromise(): Promise<spotify.User> {
+    if (!this._userPromise) {
+      this._userPromise = spotify.getUser(this.grant, this.userID)
+    }
+    return this._userPromise
+  }
+
+  async displayName(): Promise<string> {
+    const user = await this.userPromise
+    return user.display_name
+  }
+
+  async followers(): Promise<number> {
+    const user = await this.userPromise
+    return user.followers.total
+  }
+
+  async externalUrls(): Promise<Tuple[]> {
+    const user = await this.userPromise
+    return Object.entries(user.external_urls)
       .map(tuple => ({key: tuple[0], value: tuple[1]}))
-    this.followers = user.followers.total
-    this.href = user.href
-    this.id = user.id
-    this.images = user.images.map(image => image.url)
-    this.type = user.type
-    this.uri = user.uri
+  }
+
+  async href(): Promise<string> {
+    const user = await this.userPromise
+    return user.href
+  }
+
+  async id(): Promise<string> {
+    const user = await this.userPromise
+    return user.id
+  }
+
+  async type(): Promise<string> {
+    const user = await this.userPromise
+    return user.type
+  }
+
+  async images(): Promise<string[]> {
+    const user = await this.userPromise
+    return user.images.map(image => image.url)
+  }
+
+  async uri(): Promise<string> {
+    const user = await this.userPromise
+    return user.uri
   }
 }
 
@@ -50,8 +86,7 @@ export const resolvers = {
   Query: {
     getUser: async (_obj: any, args: any, req: any, _info: any) => {
       const {grant} = req.session.spotify
-      const user: spotify.User = await spotify.getUser(grant, args.userID)
-      return new User(user)
+      return new User(grant, args.userID)
     },
   },
 };
