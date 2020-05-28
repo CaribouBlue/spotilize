@@ -127,6 +127,49 @@ export interface AlbumAbbrv {
   uri: string
 }
 
+export interface Album {
+  album_type: string,
+  artists: [ArtistAbbrv],
+  available_markets: [string],
+  copyrights: [
+    {
+      text: string,
+      type: string
+    },
+    {
+      text: string,
+      type: string
+    }
+  ],
+  external_ids: {
+    upc: string
+  },
+  external_urls: {
+    spotify: string
+  },
+  genres: string[],
+  href: string
+  id: string,
+  images: Image[],
+  label: string,
+  name: string,
+  popularity: number,
+  release_date: string,
+  release_date_precision: string,
+  total_tracks: number,
+  tracks: {
+    href: string,
+    items: [Track],
+    limit: number,
+    next: null,
+    offset: number,
+    previous: null,
+    total: number
+  },
+  type: string,
+  uri: string
+}
+
 export interface ArtistAbbrv {
   external_urls: {
     spotify: string
