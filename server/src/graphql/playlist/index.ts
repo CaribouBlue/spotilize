@@ -1,7 +1,11 @@
 'use strict'
 
 import * as spotify from '@services/spotify'
+
+import * as tuple from '@utils/tuple'
+
 import {User} from '@graphql/user'
+import {Track} from '@graphql/track'
 
 // schema
 export const typeDef = `
@@ -31,6 +35,7 @@ export const typeDef = `
     addedBy: User
     isLocal: Boolean
     videoThumbnail: String
+    track: Track
   }
 `;
 
@@ -159,21 +164,40 @@ export class PlaylistTrack {
   }
 
   async addedBy(): Promise<User> {
-    const user = new User(this.grant, this.playlistTrack.added_by.id)
-    user.externalUrls = async () =>
-      Object.entries(this.playlistTrack.added_by.external_urls)
-        .map(tuple => ({key: tuple[0], value: tuple[1]}))
-    user.href = async () => this.playlistTrack.added_by.href
-    user.id = async () => this.playlistTrack.added_by.id
-    user.type = async () => this.playlistTrack.added_by.type
-    user.uri = async () => this.playlistTrack.added_by.uri
+    const userData = this.playlistTrack.added_by
+    const user = new User(this.grant, userData.id)
+    user.externalUrls = async () => tuple.fromObj(userData.external_urls)
+    user.href = async () => userData.href
+    user.id = async () => userData.id
+    user.type = async () => userData.type
+    user.uri = async () => userData.uri
     return user
   }
 
-  // async track(): Promise<Track> {
-  //
-  // }
-
+  async track(): Promise<Track> {
+    const trackData = this.playlistTrack.track
+    const track = new Track(this.grant, trackData.id)
+    // track.album = async () => trackData.album
+    // track.artists = async () => trackData.artists
+    track.availableMarkets = async () => trackData.available_markets
+    track.discNumber = async () => trackData.disc_number
+    track.durationMs = async () => trackData.duration_ms
+    track.episode = async () => trackData.episode
+    track.explicit = async () => trackData.explicit
+    track.externalIds = async () => tuple.fromObj(trackData.external_ids)
+    track.externalUrls = async () => tuple.fromObj(trackData.external_urls)
+    track.href = async () => trackData.href
+    track.id = async () => trackData.id
+    track.isLocal = async () => trackData.is_local
+    track.name = async () => trackData.name
+    track.popularity = async () => trackData.popularity
+    track.previewUrl = async () => trackData.preview_url
+    track.track = async () => trackData.track
+    track.trackNumber = async () => trackData.track_number
+    track.type = async () => trackData.type
+    track.uri = async () => trackData.uri
+    return track
+  }
 }
 
 // resolvers

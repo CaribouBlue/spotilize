@@ -8,7 +8,6 @@ import {Grant, User, Playlist} from './types';
 const spotifyApiHost = config.get('spotify.apiHost')
 
 export const getUser = async (grant: Grant, userID: string): Promise<User> => {
-  console.log('getting user')
   const endpoint = userID
     ? `/users/${userID}`
     : '/me'
