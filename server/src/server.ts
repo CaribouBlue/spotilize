@@ -16,6 +16,7 @@ import * as hello from '@graphql/hello'
 import * as user from '@graphql/user'
 import * as playlist from '@graphql/playlist'
 import * as track from '@graphql/track'
+import * as artist from '@graphql/artist'
 
 const app = express()
 const port: string | number = config.get('server.port')
@@ -97,12 +98,14 @@ const typeDefs = [
   user.typeDef,
   playlist.typeDef,
   track.typeDef,
+  artist.typeDef,
 ]
 const resolvers = [
   hello.resolvers,
   user.resolvers,
   playlist.resolvers,
   track.resolvers,
+  artist.resolvers,
 ]
 const schema = makeExecutableSchema({ typeDefs, resolvers });
 app.use('/graphql', graphqlHTTP({
