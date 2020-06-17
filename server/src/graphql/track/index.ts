@@ -3,6 +3,8 @@
 import * as spotify from '@services/spotify'
 import * as tuple from '@utils/tuple'
 
+import {Artist} from '@graphql/artist'
+
 // schema
 export const typeDef = `
   extend type Query {
@@ -27,12 +29,12 @@ export const typeDef = `
     trackNumber: Int
     type: String
     uri: String
+    artists: [Artist]
   }
 
 `;
 
 // album: Album
-// artists: [Artist]
 
 export class Track {
   grant: spotify.Grant
@@ -57,10 +59,28 @@ export class Track {
   //   return track.album
   // }
   //
-  // async artists(): Promise<[Artist]> {
-  //   const track = await this.trackPromise
-  //   return track.artists
-  // }
+
+  async artists(): Promise<Artist[]> {
+    const track = await this.trackPromise
+    return track.artists.map(artistData => {
+      const artist = new Artist(this.grant, artistData.id)
+
+      artist.externalUrls = async () =>
+        tuple.fromObj(artistData.external_urls)
+      artist.href = async () =>
+        artistData.href
+      artist.id = async () =>
+        artistData.id
+      artist.name = async () =>
+        artistData.name
+      artist.type = async () =>
+        artistData.type
+      artist.uri = async () =>
+        artistData.uri
+        
+      return artist
+    })
+  }
 
   async availableMarkets(): Promise<[string]> {
     const track = await this.trackPromise

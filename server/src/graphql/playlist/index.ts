@@ -6,6 +6,7 @@ import * as tuple from '@utils/tuple'
 
 import {User} from '@graphql/user'
 import {Track} from '@graphql/track'
+import {Artist} from '@graphql/artist'
 
 // schema
 export const typeDef = `
@@ -178,7 +179,26 @@ export class PlaylistTrack {
     const trackData = this.playlistTrack.track
     const track = new Track(this.grant, trackData.id)
     // track.album = async () => trackData.album
-    // track.artists = async () => trackData.artists
+    track.artists = async () => {
+      return trackData.artists.map(artistData => {
+        const artist = new Artist(this.grant, artistData.id)
+
+        artist.externalUrls = async () =>
+          tuple.fromObj(artistData.external_urls)
+        artist.href = async () =>
+          artistData.href
+        artist.id = async () =>
+          artistData.id
+        artist.name = async () =>
+          artistData.name
+        artist.type = async () =>
+          artistData.type
+        artist.uri = async () =>
+          artistData.uri
+
+        return artist
+      })
+    }
     track.availableMarkets = async () => trackData.available_markets
     track.discNumber = async () => trackData.disc_number
     track.durationMs = async () => trackData.duration_ms
